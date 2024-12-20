@@ -1,0 +1,115 @@
+.git
+.gitignore
+.github/
+
+# Dependencies
+**/node_modules
+**/__pycache__
+**/*.py[cod]
+**/poetry.lock
+**/pnpm-lock.yaml
+
+# Test and Coverage
+**/.pytest_cache
+**/.coverage
+**/coverage
+**/tests
+**/*.test.*
+**/*.spec.*
+**/jest.config.*
+
+# Build and Distribution
+**/dist
+**/build
+**/.next
+
+# Environment and Secrets
+**/.env*
+**/*.key
+**/*.pem
+**/*.crt
+**/*.p12
+
+# IDE and Editor
+**/.vscode
+**/.idea
+**/.editorconfig
+
+# Documentation
+**/README.md
+**/LICENSE
+**/CONTRIBUTING.md
+**/CHANGELOG.md
+**/docs
+
+# Infrastructure
+infrastructure/
+**/docker-compose*.yml
+**/Dockerfile*
+**/.dockerignore
+
+# Logs and Temporary Files
+**/logs
+**/*.log
+**/tmp
+**/temp
+
+# System Files
+**/.DS_Store
+**/Thumbs.db
+**/*.swp
+**/*~
+
+# Development Tools
+**/.eslintrc*
+**/.prettierrc*
+**/.stylelintrc*
+**/tsconfig*.json
+**/babel.config.*
+**/.babelrc*
+
+# Monitoring and Debug
+**/profiling
+**/benchmarks
+**/.clinic
+
+# Cache
+**/.cache
+**/.npm
+**/.yarn
+
+# Media and Assets (if managed separately)
+**/*.mp4
+**/*.mov
+**/*.avi
+**/*.wmv
+**/*.psd
+**/*.ai
+**/*.sketch
+
+# Database
+**/*.sqlite
+**/*.db
+**/migrations
+
+# Kubernetes
+**/k8s
+**/*.yaml
+**/*.yml
+!**/next.config.js
+
+# Package Files
+**/package-lock.json
+**/yarn.lock
+
+# Python Virtual Environment
+**/venv
+**/.venv
+**/.python-version
+**/pip-log.txt
+
+# Local Development
+**/local
+**/.local
+**/dev
+**/.dev
