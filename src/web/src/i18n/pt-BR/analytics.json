@@ -1,0 +1,123 @@
+{
+  "page": {
+    "title": "Análise de Desempenho",
+    "description": "Acompanhe as métricas principais do seu negócio",
+    "loading": "Carregando dados...",
+    "error": "Erro ao carregar dados",
+    "no_data": "Nenhum dado disponível para o período selecionado",
+    "refresh": "Atualizar dados",
+    "last_updated": "Última atualização: {{time}}"
+  },
+  "metrics": {
+    "conversion_rate": {
+      "title": "Taxa de Conversão",
+      "description": "Porcentagem de leads convertidos em pacientes",
+      "unit": "%",
+      "tooltip": "Calculado como (pacientes convertidos / total de leads) × 100"
+    },
+    "response_time": {
+      "title": "Tempo de Resposta",
+      "description": "Tempo médio de resposta às mensagens",
+      "unit": "min",
+      "tooltip": "Média do tempo entre recebimento e resposta das mensagens"
+    },
+    "message_volume": {
+      "title": "Volume de Mensagens",
+      "description": "Total de mensagens trocadas",
+      "unit": "mensagens",
+      "tooltip": "Soma de todas as mensagens enviadas e recebidas"
+    },
+    "ai_usage": {
+      "title": "Uso de IA",
+      "description": "Porcentagem de mensagens respondidas pela IA",
+      "unit": "%",
+      "tooltip": "Proporção de respostas automáticas vs. manuais"
+    },
+    "revenue": {
+      "title": "Receita",
+      "description": "Valor total gerado no período",
+      "unit": "R$",
+      "tooltip": "Soma de todos os pagamentos confirmados"
+    }
+  },
+  "conversion_types": {
+    "lead": "Lead",
+    "appointment": "Consulta",
+    "payment": "Pagamento",
+    "follow_up": "Retorno"
+  },
+  "message_types": {
+    "text": "Texto",
+    "media": "Mídia",
+    "template": "Modelo",
+    "quick_reply": "Resposta Rápida",
+    "location": "Localização",
+    "contact": "Contato"
+  },
+  "charts": {
+    "conversion": {
+      "title": "Taxa de Conversão ao Longo do Tempo",
+      "y_axis": "Taxa de Conversão (%)",
+      "x_axis": "Data",
+      "legend": "Tipos de Conversão"
+    },
+    "response_time": {
+      "title": "Tempo de Resposta Médio",
+      "y_axis": "Tempo (minutos)",
+      "x_axis": "Data",
+      "legend": "Tipo de Resposta"
+    },
+    "message_volume": {
+      "title": "Volume de Mensagens por Tipo",
+      "y_axis": "Quantidade de Mensagens",
+      "x_axis": "Tipo de Mensagem",
+      "legend": "Canais"
+    }
+  },
+  "filters": {
+    "date_range": {
+      "label": "Período",
+      "today": "Hoje",
+      "yesterday": "Ontem",
+      "last_7_days": "Últimos 7 dias",
+      "last_30_days": "Últimos 30 dias",
+      "this_month": "Este mês",
+      "last_month": "Mês passado",
+      "custom": "Personalizado",
+      "apply": "Aplicar",
+      "cancel": "Cancelar"
+    },
+    "metric_type": {
+      "label": "Tipo de Métrica",
+      "all": "Todas as Métricas",
+      "conversion": "Conversão",
+      "engagement": "Engajamento",
+      "performance": "Desempenho"
+    },
+    "comparison": {
+      "label": "Comparação",
+      "none": "Nenhuma",
+      "previous_period": "Período Anterior",
+      "same_period_last_year": "Mesmo Período Ano Anterior"
+    }
+  },
+  "trends": {
+    "increase": "Aumento de",
+    "decrease": "Redução de",
+    "no_change": "Sem alteração",
+    "from_previous": "em relação ao período anterior",
+    "significant": "Variação significativa",
+    "moderate": "Variação moderada",
+    "slight": "Variação leve"
+  },
+  "export": {
+    "button": "Exportar Dados",
+    "pdf": "Exportar como PDF",
+    "csv": "Exportar como CSV",
+    "excel": "Exportar como Excel",
+    "loading": "Preparando exportação...",
+    "success": "Exportação concluída",
+    "error": "Erro na exportação",
+    "filename": "analytics_{{date}}"
+  }
+}
