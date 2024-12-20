@@ -1,0 +1,247 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'src/backend/**'
+      - '.github/workflows/backend-ci.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'src/backend/**'
+  schedule:
+    - cron: '0 0 * * 0'  # Weekly security scans
+
+env:
+  PYTHON_VERSION: '3.11'
+  POETRY_VERSION: '1.5.0'
+  TZ: 'America/Sao_Paulo'
+  COVERAGE_MINIMUM: '80'
+  SNYK_SEVERITY_THRESHOLD: 'high'
+
+concurrency:
+  group: backend-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Configure timezone
+        run: |
+          sudo ln -sf /usr/share/zoneinfo/${{ env.TZ }} /etc/localtime
+          sudo dpkg-reconfigure -f noninteractive tzdata
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 - --version ${{ env.POETRY_VERSION }}
+          poetry config virtualenvs.in-project true
+
+      - name: Cache Poetry dependencies
+        uses: actions/cache@v3
+        with:
+          path: src/backend/.venv
+          key: poetry-${{ hashFiles('src/backend/poetry.lock') }}
+
+      - name: Install dependencies
+        working-directory: src/backend
+        run: poetry install --no-interaction
+
+      - name: Run tests with coverage
+        working-directory: src/backend
+        run: |
+          poetry run pytest \
+            --cov=app \
+            --cov-report=xml \
+            --cov-report=term-missing \
+            --junitxml=test-results.xml
+
+      - name: Verify minimum coverage
+        working-directory: src/backend
+        run: |
+          coverage_value=$(poetry run coverage report | grep TOTAL | awk '{print $4}' | sed 's/%//')
+          if (( $(echo "$coverage_value < ${{ env.COVERAGE_MINIMUM }}" | bc -l) )); then
+            echo "Coverage $coverage_value% is below minimum ${{ env.COVERAGE_MINIMUM }}%"
+            exit 1
+          fi
+
+      - name: Upload coverage report
+        uses: codecov/codecov-action@v3
+        with:
+          file: src/backend/coverage.xml
+          fail_ci_if_error: true
+
+  lint:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 - --version ${{ env.POETRY_VERSION }}
+          poetry config virtualenvs.in-project true
+
+      - name: Cache Poetry dependencies
+        uses: actions/cache@v3
+        with:
+          path: src/backend/.venv
+          key: poetry-${{ hashFiles('src/backend/poetry.lock') }}
+
+      - name: Install dependencies
+        working-directory: src/backend
+        run: poetry install --no-interaction
+
+      - name: Run black
+        working-directory: src/backend
+        run: poetry run black . --check
+
+      - name: Run isort
+        working-directory: src/backend
+        run: poetry run isort . --check-only --diff
+
+      - name: Run flake8
+        working-directory: src/backend
+        run: poetry run flake8 .
+
+      - name: Run bandit
+        working-directory: src/backend
+        run: poetry run bandit -r app -c pyproject.toml
+
+  type-check:
+    name: Type Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 - --version ${{ env.POETRY_VERSION }}
+          poetry config virtualenvs.in-project true
+
+      - name: Cache Poetry dependencies
+        uses: actions/cache@v3
+        with:
+          path: src/backend/.venv
+          key: poetry-${{ hashFiles('src/backend/poetry.lock') }}
+
+      - name: Install dependencies
+        working-directory: src/backend
+        run: poetry install --no-interaction
+
+      - name: Run mypy
+        working-directory: src/backend
+        run: poetry run mypy app --strict
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 - --version ${{ env.POETRY_VERSION }}
+          poetry config virtualenvs.in-project true
+
+      - name: Run Snyk security scan
+        uses: snyk/actions/python@v3
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          command: monitor
+          args: --severity-threshold=${{ env.SNYK_SEVERITY_THRESHOLD }}
+
+      - name: Run safety check
+        working-directory: src/backend
+        run: |
+          poetry export -f requirements.txt | poetry run safety check --full-report
+
+      - name: Run OWASP dependency check
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: 'Porfin Backend'
+          path: 'src/backend'
+          format: 'HTML'
+          args: >
+            --failOnCVSS 7
+            --enableRetired
+
+  build:
+    name: Build Container
+    needs: [test, lint, type-check, security-scan]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build container
+        uses: docker/build-push-action@v4
+        with:
+          context: src/backend
+          push: false
+          tags: porfin-backend:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: porfin-backend:${{ github.sha }}
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Run container security benchmark
+        run: |
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+            aquasec/docker-bench-security -c container_images \
+            -i porfin-backend:${{ github.sha }}
+
+      - name: Verify container health check
+        run: |
+          docker run -d --name porfin-backend porfin-backend:${{ github.sha }}
+          sleep 10
+          docker inspect porfin-backend --format='{{.State.Health.Status}}' | grep -q healthy
