@@ -1,0 +1,200 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to deploy'
+        required: true
+        type: string
+
+env:
+  GCP_PROJECT_ID: porfin-prod
+  GCP_REGION: southamerica-east1
+  NAMESPACE: porfin-system
+  TF_WORKSPACE: prod
+  CANARY_TRAFFIC_PERCENTAGE: 10
+  CONTAINER_REGISTRY: gcr.io
+  CLUSTER_NAME: porfin-prod-cluster
+
+jobs:
+  validate:
+    name: Validate Deployment
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+      id-token: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SA_EMAIL }}
+
+      - name: Setup gcloud CLI
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          version: latest
+          install_components: gke-gcloud-auth-plugin
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: "1.5.0"
+
+      - name: Initialize Terraform
+        run: |
+          terraform init \
+            -backend-config="bucket=porfin-terraform-state" \
+            -backend-config="prefix=env/prod"
+        working-directory: infrastructure/terraform/environments/prod
+
+      - name: Validate Terraform Plan
+        run: |
+          terraform plan -detailed-exitcode \
+            -var="project_id=${{ env.GCP_PROJECT_ID }}" \
+            -var="region=${{ env.GCP_REGION }}" \
+            -out=tfplan
+        working-directory: infrastructure/terraform/environments/prod
+
+      - name: Run Security Scan
+        run: |
+          gcloud container images scan ${{ env.CONTAINER_REGISTRY }}/${{ env.GCP_PROJECT_ID }}/backend:${{ github.sha }} \
+            --format='get(discovery.analysisStatus)' | if grep -q '^FINISHED_SUCCESS$'; then exit 0; else exit 1; fi
+
+  deploy-infrastructure:
+    name: Deploy Infrastructure
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+      id-token: write
+    
+    steps:
+      - name: Apply Terraform Changes
+        run: |
+          terraform apply -auto-approve tfplan
+        working-directory: infrastructure/terraform/environments/prod
+
+      - name: Configure kubectl
+        run: |
+          gcloud container clusters get-credentials ${{ env.CLUSTER_NAME }} \
+            --region ${{ env.GCP_REGION }} \
+            --project ${{ env.GCP_PROJECT_ID }}
+
+  deploy-canary:
+    name: Deploy Canary
+    needs: deploy-infrastructure
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+      id-token: write
+    
+    steps:
+      - name: Deploy Canary Version
+        run: |
+          kubectl apply -k infrastructure/kubernetes/overlays/prod \
+            --namespace=${{ env.NAMESPACE }} \
+            -f - <<EOF
+          apiVersion: networking.istio.io/v1alpha3
+          kind: VirtualService
+          metadata:
+            name: porfin-vs
+          spec:
+            hosts:
+            - "*"
+            http:
+            - route:
+              - destination:
+                  host: porfin-canary
+                  subset: canary
+                weight: ${{ env.CANARY_TRAFFIC_PERCENTAGE }}
+              - destination:
+                  host: porfin-stable
+                  subset: stable
+                weight: $((100 - ${{ env.CANARY_TRAFFIC_PERCENTAGE }}))
+          EOF
+
+      - name: Monitor Canary Health
+        run: |
+          for i in {1..30}; do
+            if kubectl get deploy -n ${{ env.NAMESPACE }} porfin-canary -o jsonpath='{.status.conditions[?(@.type=="Available")].status}' | grep -q "True"; then
+              echo "Canary deployment healthy"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "Canary deployment failed health check"
+          exit 1
+
+  promote-to-production:
+    name: Promote to Production
+    needs: deploy-canary
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+      id-token: write
+    
+    steps:
+      - name: Promote Canary to Production
+        run: |
+          kubectl apply -k infrastructure/kubernetes/overlays/prod \
+            --namespace=${{ env.NAMESPACE }} \
+            -f - <<EOF
+          apiVersion: networking.istio.io/v1alpha3
+          kind: VirtualService
+          metadata:
+            name: porfin-vs
+          spec:
+            hosts:
+            - "*"
+            http:
+            - route:
+              - destination:
+                  host: porfin-stable
+                  subset: stable
+                weight: 100
+          EOF
+
+      - name: Verify Production Health
+        run: |
+          kubectl rollout status deployment/porfin-stable -n ${{ env.NAMESPACE }} --timeout=10m
+
+      - name: Update DNS and CDN
+        run: |
+          gcloud compute url-maps update porfin-prod-lb \
+            --default-service porfin-prod-backend-service \
+            --project ${{ env.GCP_PROJECT_ID }}
+
+  cleanup:
+    name: Cleanup
+    needs: promote-to-production
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+      - name: Cleanup Canary Resources
+        run: |
+          kubectl delete deployment porfin-canary -n ${{ env.NAMESPACE }} || true
+          kubectl delete service porfin-canary -n ${{ env.NAMESPACE }} || true
+
+      - name: Archive Deployment Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: deployment-artifacts
+          path: |
+            infrastructure/terraform/environments/prod/tfplan
+            infrastructure/kubernetes/overlays/prod/
