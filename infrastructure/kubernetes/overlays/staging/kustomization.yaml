@@ -1,0 +1,127 @@
+# Kustomize configuration for Porfin staging environment
+# Version: kustomize v5.0+
+# Purpose: Defines staging environment-specific customizations and configurations
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Staging namespace configuration
+namespace: porfin-staging
+namePrefix: staging-
+
+# Common labels for all resources
+commonLabels:
+  environment: staging
+  managed-by: kustomize
+  app.kubernetes.io/part-of: porfin
+  app.kubernetes.io/environment: staging
+  app.kubernetes.io/managed-by: kustomize
+  app.kubernetes.io/version: v1
+  deployment-strategy: blue-green
+
+# Common annotations for all resources
+commonAnnotations:
+  environment.porfin.io/name: staging
+  environment.porfin.io/type: non-production
+  deployment.porfin.io/strategy: blue-green
+  monitoring.porfin.io/enabled: "true"
+  kubernetes.io/description: "Porfin staging environment resources"
+  maintainer: "porfin-devops"
+
+# Base resources to be customized
+resources:
+  # Frontend application resources
+  - ../../apps/frontend/deployment.yaml
+  - ../../apps/frontend/service.yaml
+  - ../../apps/frontend/hpa.yaml
+  
+  # Backend API resources
+  - ../../apps/backend/deployment.yaml
+  - ../../apps/backend/service.yaml
+  - ../../apps/backend/hpa.yaml
+  
+  # AI Service resources
+  - ../../apps/ai-service/deployment.yaml
+  - ../../apps/ai-service/service.yaml
+  - ../../apps/ai-service/hpa.yaml
+
+# ConfigMap generators
+configMapGenerator:
+  - name: app-config
+    behavior: merge
+    envs:
+      - configs/env.properties
+    options:
+      disableNameSuffixHash: true
+    labels:
+      config-type: application
+      environment: staging
+
+# Secret generators
+secretGenerator:
+  - name: app-secrets
+    envs:
+      - configs/secrets.env
+    type: Opaque
+    labels:
+      secret-type: application
+      environment: staging
+
+# Resource patches
+patches:
+  # Resource limits and requests
+  - path: patches/resource-limits.yaml
+    target:
+      kind: Deployment
+      name: ".*"
+  
+  # HPA configurations
+  - path: patches/hpa-config.yaml
+    target:
+      kind: HorizontalPodAutoscaler
+      name: ".*"
+  
+  # Blue/Green deployment strategy
+  - path: patches/deployment-strategy.yaml
+    target:
+      kind: Deployment
+      name: ".*"
+
+# Replica configurations for high availability
+replicas:
+  - name: frontend-deployment
+    count: 2
+  - name: backend-deployment
+    count: 2
+  - name: ai-service-deployment
+    count: 2
+
+# Resource transformers
+transformers:
+  - labels.yaml
+
+# Images customization
+images:
+  - name: porfin-frontend
+    newName: gcr.io/porfin/frontend
+    newTag: staging
+  - name: porfin-backend
+    newName: gcr.io/porfin/backend
+    newTag: staging
+  - name: porfin-ai-service
+    newName: gcr.io/porfin/ai-service
+    newTag: staging
+
+# Vars for cross-resource references
+vars:
+  - name: ENVIRONMENT
+    objref:
+      kind: ConfigMap
+      name: app-config
+      apiVersion: v1
+    fieldref:
+      fieldpath: data.ENVIRONMENT
+
+# Configuration for proper ordering of resources
+configurations:
+  - configurations/kustomization-config.yaml
