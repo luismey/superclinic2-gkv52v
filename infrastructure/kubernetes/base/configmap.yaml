@@ -1,0 +1,107 @@
+# Kubernetes ConfigMap for Porfin Application
+# Version: v1
+# Kubernetes Version: v1.25+
+# Environment: ${ENV} (development/staging/production)
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: porfin-system
+  labels:
+    app: porfin
+    managed-by: kustomize
+    environment: ${ENV}
+    component: configuration
+    version: "1.0.0"
+    created-by: infrastructure-team
+data:
+  # Core Application Settings
+  APP_ENV: ${ENV}
+  API_HOST: "0.0.0.0"
+  API_PORT: "8000"
+  LOG_LEVEL: "info"
+  CORS_ORIGINS: "*"
+
+  # Firebase Configuration
+  FIREBASE_PROJECT_ID: "porfin-${ENV}"
+  FIREBASE_REGION: "southamerica-east1"
+
+  # OpenAI GPT-4 Configuration
+  OPENAI_MODEL: "gpt-4"
+  OPENAI_MAX_TOKENS: "2048"
+  OPENAI_TEMPERATURE: "0.7"
+  OPENAI_TIMEOUT: "30"
+  OPENAI_RETRY_ATTEMPTS: "3"
+
+  # WhatsApp Integration Settings
+  WHATSAPP_MESSAGE_QUEUE: "whatsapp-messages"
+  WHATSAPP_MAX_RETRIES: "3"
+  WHATSAPP_BATCH_SIZE: "100"
+  WHATSAPP_RATE_LIMIT: "80"  # messages per second
+  WHATSAPP_WINDOW_HOURS: "24"
+  WHATSAPP_MEDIA_TYPES: "image,document,audio,video,location"
+
+  # Redis Cache Configuration
+  REDIS_HOST: "redis-master"
+  REDIS_PORT: "6379"
+  REDIS_MAX_CONNECTIONS: "100"
+  REDIS_TIMEOUT: "5"
+  REDIS_SSL: "true"
+
+  # PubSub Message Queue Settings
+  PUBSUB_TOPIC: "messages"
+  PUBSUB_SUBSCRIPTION: "message-processor"
+  PUBSUB_RETRY_POLICY: "exponential"
+  PUBSUB_ACK_DEADLINE: "60"
+
+  # Metrics and Monitoring
+  METRICS_PORT: "9090"
+  METRICS_PATH: "/metrics"
+  METRICS_SCRAPE_INTERVAL: "15"
+  METRICS_RETENTION_DAYS: "30"
+
+  # Google Calendar Integration
+  CALENDAR_SCOPES: "https://www.googleapis.com/auth/calendar"
+  CALENDAR_SYNC_INTERVAL: "300"
+  CALENDAR_MAX_EVENTS: "1000"
+  CALENDAR_CACHE_TTL: "600"
+
+  # Brazilian Payment Integration
+  PAYMENT_PROVIDERS: "pix,credit_card"
+  PAYMENT_RETRY_ATTEMPTS: "3"
+  PAYMENT_TIMEOUT: "30"
+  PAYMENT_WEBHOOK_PATH: "/webhooks/payment"
+  PIX_EXPIRATION_MINUTES: "30"
+
+  # Localization Settings
+  DEFAULT_LANGUAGE: "pt-BR"
+  DEFAULT_TIMEZONE: "America/Sao_Paulo"
+  DEFAULT_CURRENCY: "BRL"
+  DATE_FORMAT: "DD/MM/YYYY"
+  TIME_FORMAT: "HH:mm"
+
+  # Security and Rate Limiting
+  RATE_LIMIT_REQUESTS: "100"
+  RATE_LIMIT_WINDOW: "60"
+  SESSION_TIMEOUT: "3600"
+  JWT_EXPIRY: "86400"
+  SECURE_COOKIES: "true"
+
+  # Data Management
+  MESSAGE_RETENTION_DAYS: "90"
+  BACKUP_SCHEDULE: "0 0 * * *"
+  MAX_UPLOAD_SIZE: "10485760"  # 10MB
+  TEMP_FILE_TTL: "3600"
+
+  # Health Check Configuration
+  HEALTH_CHECK_PATH: "/health"
+  HEALTH_CHECK_INTERVAL: "30"
+  READINESS_TIMEOUT: "5"
+  LIVENESS_TIMEOUT: "3"
+
+  # Feature Flags
+  ENABLE_AI_ASSISTANT: "true"
+  ENABLE_ANALYTICS: "true"
+  ENABLE_CAMPAIGN_AUTOMATION: "true"
+  ENABLE_MULTI_DEVICE: "true"
