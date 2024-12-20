@@ -1,0 +1,121 @@
+[build-system]
+requires = ["poetry-core>=1.5.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "porfin-backend"
+version = "0.1.0"
+description = "AI-powered business management platform for healthcare professionals in Brazil"
+authors = ["Porfin Team"]
+readme = "README.md"
+python = "^3.11"
+license = "Proprietary"
+homepage = "https://porfin.com.br"
+repository = "https://github.com/porfin/porfin-backend"
+documentation = "https://docs.porfin.com.br"
+keywords = ["healthcare", "whatsapp", "ai", "business-management", "brazil"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Healthcare Industry",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Office/Business",
+    "Topic :: Communications :: Chat",
+    "Private :: Do Not Upload"
+]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.100.0"  # High-performance async web framework
+pydantic = "^2.0.0"  # Data validation using Python type annotations
+firebase-admin = "^6.2.0"  # Firebase Auth and Firestore integration
+google-cloud-pubsub = "^2.18.0"  # Async message queue for events
+redis = "^4.6.0"  # In-memory cache and real-time features
+openai = "^0.27.8"  # GPT-4 integration for virtual assistants
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}  # JWT handling
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}  # Password hashing
+python-multipart = "^0.0.6"  # File upload support
+uvicorn = {extras = ["standard"], version = "^0.23.0"}  # ASGI server
+httpx = "^0.24.1"  # Async HTTP client for external APIs
+python-dateutil = "^2.8.2"  # Date handling utilities
+pytz = "^2023.3"  # Timezone support for Brazil
+pycryptodome = "^3.18.0"  # Additional cryptography features
+tenacity = "^8.2.2"  # Retry logic for external services
+structlog = "^23.1.0"  # Structured logging
+prometheus-client = "^0.17.1"  # Metrics collection
+sentry-sdk = {extras = ["fastapi"], version = "^1.28.1"}  # Error tracking
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.0"  # Testing framework
+pytest-asyncio = "^0.21.0"  # Async test support
+pytest-cov = "^4.1.0"  # Test coverage reporting
+black = "^23.7.0"  # Code formatting
+isort = "^5.12.0"  # Import sorting
+flake8 = "^6.1.0"  # Code linting
+mypy = "^1.4.0"  # Static type checking
+pytest-mock = "^3.11.1"  # Mocking support for tests
+pytest-env = "^0.8.2"  # Environment variable management for tests
+faker = "^19.2.0"  # Test data generation
+types-python-dateutil = "^2.8.19.14"  # Type stubs for dateutil
+types-pytz = "^2023.3.0.0"  # Type stubs for pytz
+types-redis = "^4.6.0.3"  # Type stubs for redis
+bandit = "^1.7.5"  # Security linting
+safety = "^2.3.5"  # Dependency security checking
+
+[tool.poetry.scripts]
+start = "porfin.main:start"
+worker = "porfin.worker:start"
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+include = '\.pyi?$'
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+line_length = 88
+known_first_party = ["porfin"]
+known_third_party = ["fastapi", "pydantic", "firebase_admin"]
+
+[tool.mypy]
+python_version = "3.11"
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_return_any = true
+warn_unreachable = true
+strict_optional = true
+plugins = ["pydantic.mypy"]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra -q --cov=porfin --cov-report=term-missing"
+testpaths = ["tests"]
+asyncio_mode = "auto"
+env = [
+    "ENVIRONMENT=test",
+    "TESTING=true"
+]
+
+[tool.coverage.run]
+source = ["porfin"]
+omit = ["tests/*", "**/__init__.py"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "pass",
+    "raise ImportError"
+]
