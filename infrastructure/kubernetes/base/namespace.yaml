@@ -1,0 +1,56 @@
+# Kubernetes namespace configuration for Porfin application
+# Version: v1.25+
+# Purpose: Defines isolated environment with multi-environment support, service mesh integration,
+# and resource management capabilities
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: porfin-system
+  labels:
+    # Application identification
+    app: porfin
+    managed-by: kustomize
+    
+    # Environment configuration
+    environment: base
+    
+    # Service mesh integration
+    istio-injection: enabled
+    
+    # Security classification
+    security-tier: restricted
+    
+    # Monitoring configuration
+    monitoring: enabled
+  
+  annotations:
+    # Node scheduling preferences
+    scheduler.alpha.kubernetes.io/node-selector: environment=production
+    
+    # Network policy configuration
+    net.beta.kubernetes.io/network-policy: restricted
+    
+    # Service mesh security configuration
+    security.istio.io/tlsMode: strict
+    
+    # Backup configuration for persistent volumes
+    backup.velero.io/backup-volumes: "true"
+    
+    # Resource quota enforcement
+    quota.kubernetes.io/enabled: "true"
+    
+    # Compliance and security annotations
+    security.compliance/data-classification: restricted
+    security.compliance/geo-region: brazil
+    security.compliance/lgpd-compliant: "true"
+    
+    # Monitoring and observability
+    monitoring.porfin.io/scrape: "true"
+    monitoring.porfin.io/path: /metrics
+    monitoring.porfin.io/port: "9090"
+    
+    # Service mesh traffic management
+    sidecar.istio.io/inject: "true"
+    traffic.sidecar.istio.io/includeInboundPorts: "*"
+    traffic.sidecar.istio.io/includeOutboundIPRanges: "*"
