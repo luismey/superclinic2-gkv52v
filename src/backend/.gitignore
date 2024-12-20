@@ -1,0 +1,142 @@
+# Python bytecode and cache
+*.py[cod]
+__pycache__/
+*.so
+.Python
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+*.egg
+pip-wheel-metadata/
+
+# Testing and coverage
+.tox/
+.nox/
+.coverage
+coverage.xml
+htmlcov/
+.pytest_cache/
+.hypothesis/
+test-reports/
+coverage-reports/
+
+# Type checking and linting
+.mypy_cache/
+.ruff_cache/
+.pytype/
+
+# Environment variables and virtualenvs
+.env
+.env.development
+.env.staging
+.env.production
+.venv
+venv/
+ENV/
+env.bak/
+venv.bak/
+local_settings.py
+local_config.py
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+
+# Logs
+*.log
+logs/
+log/
+debug.log
+error.log
+access.log
+
+# Security and credentials
+*.pem
+*.key
+*.crt
+*.csr
+*.keystore
+*.p12
+secrets/
+credentials/
+private/
+
+# FastAPI specific
+swagger-ui/
+openapi.json
+static/swagger/
+docs/_build/
+
+# Docker
+.docker/
+docker-compose.override.yml
+docker-compose.*.yml
+!docker-compose.yml
+
+# Dependencies
+poetry.lock
+.poetry/
+node_modules/
+package-lock.json
+
+# Temporary files
+tmp/
+temp/
+*.local
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+
+# Media and static files
+media/
+static/
+uploads/
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# System files
+Thumbs.db
+desktop.ini
+
+# Compiled translations
+*.mo
+*.pot
+
+# Local development
+.local/
+local/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# Poetry specific
+dist/
+poetry.toml
+
+# Google Cloud credentials
+google-credentials.json
+*-credentials.json
+service-account.json
+
+# WhatsApp session files
+*.session
+*.session-journal
+whatsapp-sessions/
+
+# AI model files
+*.model
+*.weights
+model_cache/
