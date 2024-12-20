@@ -1,0 +1,77 @@
+# Kubernetes HorizontalPodAutoscaler configuration for Porfin Backend Service
+# Version: autoscaling/v2
+# Purpose: Defines auto-scaling rules based on CPU and memory utilization with enhanced stability controls
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: porfin-backend-hpa
+  namespace: porfin-system
+  labels:
+    app: porfin
+    component: backend
+    environment: ${ENV}
+    managed-by: kustomize
+  annotations:
+    # Auto-scaling policy description
+    autoscaling.policy/description: "Production-grade HPA with CPU and Memory metrics"
+    
+    # Monitoring integration
+    prometheus.io/scrape: "true"
+    prometheus.io/path: "/metrics"
+    
+    # Performance targets
+    performance.slo/latency-target: "500ms"
+    performance.slo/messages-per-second: "100"
+    
+    # Availability target
+    availability.slo/uptime-target: "99.9"
+
+spec:
+  # Target deployment reference
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: porfin-backend
+  
+  # Scaling limits
+  minReplicas: 3    # Ensures high availability
+  maxReplicas: 15   # Prevents resource exhaustion
+  
+  # Scaling metrics
+  metrics:
+    # CPU-based scaling
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    
+    # Memory-based scaling
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+  
+  # Advanced scaling behavior
+  behavior:
+    scaleUp:
+      # Aggressive scale-up for rapid response
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Pods
+        value: 2                # Add up to 2 pods
+        periodSeconds: 60       # Every 60 seconds
+      selectPolicy: Max        # Use most aggressive policy
+    
+    scaleDown:
+      # Conservative scale-down to maintain stability
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Pods
+        value: 1                # Remove 1 pod
+        periodSeconds: 60       # Every 60 seconds
+      selectPolicy: Min        # Use most conservative policy
