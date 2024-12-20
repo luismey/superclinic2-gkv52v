@@ -1,0 +1,79 @@
+# Horizontal Pod Autoscaler configuration for Porfin frontend application
+# Version: v2beta2
+# Purpose: Defines automatic scaling rules with enhanced stability controls
+# and resource-based metrics for the frontend deployment
+
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: porfin-frontend
+  namespace: porfin-system
+  labels:
+    app: porfin
+    component: frontend
+    managed-by: terraform
+    environment: production
+  annotations:
+    # Monitoring configuration for metrics collection
+    monitoring.porfin.com/scrape: "true"
+    monitoring.porfin.com/path: "/metrics"
+    monitoring.porfin.com/port: "9090"
+    
+    # HPA behavior documentation
+    autoscaling.kubernetes.io/behavior: |
+      {
+        "scaleUp": {"stabilizationWindowSeconds": 60},
+        "scaleDown": {"stabilizationWindowSeconds": 300}
+      }
+    kubernetes.io/description: "Frontend HPA with CPU and memory-based scaling"
+
+spec:
+  # Target the frontend deployment
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: porfin-frontend
+
+  # Scaling limits based on high availability requirements
+  minReplicas: 3
+  maxReplicas: 10
+
+  # Resource-based scaling metrics
+  metrics:
+    # CPU-based scaling
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+
+    # Memory-based scaling
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+
+  # Advanced scaling behavior configuration
+  behavior:
+    # Scale up configuration
+    scaleUp:
+      # Quick response to increased load
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Pods
+        value: 2
+        periodSeconds: 60
+      selectPolicy: Max
+
+    # Conservative scale down configuration
+    scaleDown:
+      # Longer window to prevent thrashing
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Pods
+        value: 1
+        periodSeconds: 120
+      selectPolicy: Min
