@@ -1,0 +1,117 @@
+{
+  "interface": {
+    "title": "Conversas",
+    "newChat": "Nova Conversa",
+    "search": "Buscar conversas...",
+    "noChats": "Nenhuma conversa encontrada",
+    "loading": "Carregando...",
+    "retry": "Tentar novamente",
+    "error": "Erro ao carregar conversas",
+    "refresh": "Atualizar conversas",
+    "menu": "Menu de opções",
+    "filter": "Filtrar conversas",
+    "sort": {
+      "label": "Ordenar por",
+      "newest": "Mais recentes",
+      "oldest": "Mais antigas",
+      "unread": "Não lidas"
+    }
+  },
+  "messages": {
+    "inputPlaceholder": "Digite uma mensagem...",
+    "send": "Enviar",
+    "attach": "Anexar",
+    "noMessages": "Nenhuma mensagem",
+    "loadMore": "Carregar mais mensagens",
+    "today": "Hoje",
+    "yesterday": "Ontem",
+    "typing": "digitando...",
+    "draft": "Rascunho",
+    "edited": "Editada",
+    "forwarded": "Encaminhada",
+    "replyTo": "Respondendo para",
+    "copyMessage": "Copiar mensagem",
+    "forwardMessage": "Encaminhar mensagem"
+  },
+  "messageTypes": {
+    "text": "Texto",
+    "image": "Imagem",
+    "document": "Documento",
+    "audio": "Áudio",
+    "video": "Vídeo",
+    "location": "Localização",
+    "contact": "Contato",
+    "template": "Mensagem modelo",
+    "interactive": "Mensagem interativa",
+    "sticker": "Figurinha",
+    "product": "Produto",
+    "catalog": "Catálogo"
+  },
+  "messageStatus": {
+    "sent": "Enviada",
+    "delivered": "Entregue",
+    "read": "Lida",
+    "failed": "Falha no envio",
+    "pending": "Pendente",
+    "sending": "Enviando",
+    "scheduled": "Agendada",
+    "deleted": "Excluída",
+    "blocked": "Bloqueada"
+  },
+  "aiAssistant": {
+    "toggle": "Assistente Virtual",
+    "enabled": "Ativado",
+    "disabled": "Desativado",
+    "typing": "Assistente está digitando...",
+    "error": "Erro ao processar resposta do assistente",
+    "suggestions": "Sugestões do assistente",
+    "learning": "Aprendendo com a conversa",
+    "confidence": {
+      "high": "Alta confiança",
+      "medium": "Média confiança",
+      "low": "Baixa confiança"
+    },
+    "actions": {
+      "schedule": "Agendar consulta",
+      "payment": "Processar pagamento",
+      "info": "Solicitar informações"
+    }
+  },
+  "errors": {
+    "messageTooLong": "Mensagem muito longa",
+    "invalidFileType": "Tipo de arquivo não suportado",
+    "fileTooLarge": "Arquivo muito grande",
+    "networkError": "Erro de conexão",
+    "sendFailed": "Falha ao enviar mensagem",
+    "uploadFailed": "Falha ao enviar arquivo",
+    "downloadFailed": "Falha ao baixar arquivo",
+    "invalidNumber": "Número inválido",
+    "messageBlocked": "Mensagem bloqueada",
+    "templateInvalid": "Modelo de mensagem inválido",
+    "rateLimited": "Limite de mensagens atingido"
+  },
+  "attachments": {
+    "image": "Enviar imagem",
+    "document": "Enviar documento",
+    "audio": "Enviar áudio",
+    "video": "Enviar vídeo",
+    "location": "Enviar localização",
+    "contact": "Enviar contato",
+    "maxSize": "Tamanho máximo: {{size}}MB",
+    "allowedTypes": "Tipos permitidos: {{types}}",
+    "preview": "Visualizar anexo",
+    "download": "Baixar anexo",
+    "scanning": "Verificando arquivo...",
+    "compress": "Comprimir arquivo"
+  },
+  "confirmations": {
+    "deleteMessage": "Deseja excluir esta mensagem?",
+    "deleteChat": "Deseja excluir esta conversa?",
+    "confirm": "Confirmar",
+    "cancel": "Cancelar",
+    "blockContact": "Deseja bloquear este contato?",
+    "clearHistory": "Deseja limpar o histórico?",
+    "leaveGroup": "Deseja sair do grupo?",
+    "markRead": "Marcar todas como lidas?"
+  }
+}
