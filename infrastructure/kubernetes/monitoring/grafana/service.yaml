@@ -1,0 +1,42 @@
+# Kubernetes Service manifest for Grafana monitoring dashboard
+# Version: v1
+# Purpose: Exposes Grafana visualization platform internally for system observability
+
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: grafana-service
+  namespace: porfin-system
+  labels:
+    app: grafana
+    component: monitoring
+    part-of: observability-stack
+    managed-by: kubernetes
+  annotations:
+    description: "Grafana monitoring dashboard service for Porfin platform"
+    monitoring.porfin.io/port: "3000"
+    monitoring.porfin.io/path: "/metrics"
+
+spec:
+  # Using ClusterIP for secure internal access only
+  type: ClusterIP
+  
+  ports:
+    - name: http
+      port: 3000           # Service port
+      targetPort: 3000     # Container port
+      protocol: TCP        # Using TCP for reliable HTTP traffic
+  
+  # Selector matches labels from Grafana deployment
+  selector:
+    app: grafana
+
+  # Session affinity for consistent routing
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 10800  # 3 hour timeout
+
+  # Publishing not ready addresses disabled for high availability
+  publishNotReadyAddresses: false
