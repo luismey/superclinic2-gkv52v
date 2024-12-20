@@ -1,0 +1,160 @@
+{
+  "title": "Campanhas",
+  "description": "Gerencie suas campanhas de comunicação via WhatsApp com pacientes",
+  "form": {
+    "title": {
+      "new": "Nova Campanha de Comunicação",
+      "edit": "Editar Campanha de Comunicação"
+    },
+    "fields": {
+      "name": {
+        "label": "Nome da Campanha",
+        "placeholder": "Ex: Campanha de Retorno, Lembretes de Consulta",
+        "help": "Nome único para identificar sua campanha de comunicação"
+      },
+      "description": {
+        "label": "Descrição",
+        "placeholder": "Descreva o objetivo desta campanha de comunicação",
+        "help": "Detalhes sobre o propósito e resultados esperados"
+      },
+      "type": {
+        "label": "Tipo de Campanha",
+        "options": {
+          "ONE_TIME": "Única Vez",
+          "RECURRING": "Recorrente",
+          "TRIGGERED": "Automatizada por Evento",
+          "FOLLOW_UP": "Acompanhamento Pós-Consulta"
+        },
+        "help": "Defina como sua campanha será executada"
+      },
+      "schedule": {
+        "label": "Agendamento",
+        "start_date": "Data de Início",
+        "end_date": "Data de Término",
+        "frequency": {
+          "label": "Frequência",
+          "options": {
+            "DAILY": "Diária",
+            "WEEKLY": "Semanal",
+            "MONTHLY": "Mensal"
+          }
+        },
+        "time": "Horário de Envio"
+      }
+    }
+  },
+  "list": {
+    "empty": "Nenhuma campanha encontrada",
+    "search": "Buscar campanhas",
+    "filters": {
+      "status": {
+        "label": "Status",
+        "options": {
+          "DRAFT": "Rascunho",
+          "SCHEDULED": "Agendada",
+          "ACTIVE": "Ativa",
+          "PAUSED": "Pausada",
+          "COMPLETED": "Concluída",
+          "CANCELLED": "Cancelada"
+        }
+      },
+      "type": "Tipo de Campanha",
+      "date_range": "Período"
+    }
+  },
+  "template": {
+    "editor": {
+      "title": "Editor de Modelo",
+      "variables": {
+        "title": "Variáveis Disponíveis",
+        "patient": {
+          "name": "Nome do Paciente",
+          "first_name": "Primeiro Nome",
+          "doctor": "Nome do Profissional",
+          "appointment_date": "Data da Consulta",
+          "appointment_time": "Horário da Consulta",
+          "clinic_name": "Nome da Clínica",
+          "clinic_address": "Endereço da Clínica"
+        }
+      },
+      "preview": "Visualização da Mensagem",
+      "test": "Enviar Teste"
+    },
+    "samples": {
+      "appointment_reminder": "Olá {{patient.first_name}}, lembrando sua consulta com {{patient.doctor}} amanhã às {{patient.appointment_time}}.",
+      "follow_up": "Olá {{patient.name}}, como está se sentindo após sua consulta? Gostaríamos de acompanhar sua evolução.",
+      "treatment_reminder": "Olá {{patient.first_name}}, não se esqueça de seguir as recomendações do seu tratamento conforme orientado."
+    }
+  },
+  "healthcare_specific": {
+    "consent": {
+      "label": "Consentimento LGPD",
+      "description": "Confirme que possui consentimento dos pacientes para comunicação",
+      "required": "Consentimento obrigatório conforme LGPD",
+      "options": {
+        "marketing": "Comunicações de marketing e promoções",
+        "appointment": "Lembretes de consulta",
+        "treatment": "Acompanhamento de tratamento",
+        "satisfaction": "Pesquisas de satisfação"
+      }
+    },
+    "medical_terms": {
+      "confidentiality": "Informações confidenciais de saúde",
+      "appointment": "Consulta médica",
+      "treatment": "Tratamento",
+      "follow_up": "Retorno",
+      "prescription": "Prescrição",
+      "exam_results": "Resultados de exames"
+    },
+    "compliance": {
+      "data_handling": "Tratamento de dados sensíveis de saúde",
+      "privacy_notice": "Aviso de privacidade conforme LGPD",
+      "retention": "Política de retenção de dados",
+      "security": "Medidas de segurança da informação"
+    }
+  },
+  "validation": {
+    "name": {
+      "required": "Nome da campanha é obrigatório",
+      "min_length": "Nome deve ter pelo menos 3 caracteres",
+      "max_length": "Nome não pode exceder 100 caracteres"
+    },
+    "description": {
+      "required": "Descrição da campanha é obrigatória",
+      "max_length": "Descrição não pode exceder 500 caracteres"
+    },
+    "schedule": {
+      "start_date_required": "Data de início é obrigatória",
+      "end_date_required": "Data de término é obrigatória",
+      "invalid_date_range": "Data de término deve ser posterior à data de início",
+      "time_required": "Horário de envio é obrigatório"
+    },
+    "consent": {
+      "required": "Consentimento LGPD é obrigatório",
+      "invalid": "Tipo de consentimento inválido para esta campanha"
+    }
+  },
+  "messages": {
+    "success": {
+      "created": "Campanha criada com sucesso",
+      "updated": "Campanha atualizada com sucesso",
+      "deleted": "Campanha excluída com sucesso",
+      "activated": "Campanha ativada com sucesso",
+      "paused": "Campanha pausada com sucesso",
+      "test_sent": "Mensagem de teste enviada com sucesso"
+    },
+    "error": {
+      "create": "Erro ao criar campanha",
+      "update": "Erro ao atualizar campanha",
+      "delete": "Erro ao excluir campanha",
+      "activate": "Erro ao ativar campanha",
+      "pause": "Erro ao pausar campanha",
+      "test_send": "Erro ao enviar mensagem de teste"
+    },
+    "confirm": {
+      "delete": "Tem certeza que deseja excluir esta campanha?",
+      "activate": "Deseja ativar esta campanha agora?",
+      "pause": "Deseja pausar esta campanha?"
+    }
+  }
+}
