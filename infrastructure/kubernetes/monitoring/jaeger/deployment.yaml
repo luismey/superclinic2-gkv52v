@@ -1,0 +1,91 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jaeger
+  namespace: porfin-system
+  labels:
+    app: jaeger
+    component: tracing
+    version: "1.45"
+    part-of: monitoring
+    managed-by: kubernetes
+spec:
+  # Single replica as this is all-in-one deployment
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jaeger
+  # Configure zero-downtime updates
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: jaeger
+        component: tracing
+        version: "1.45"
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "16686"
+    spec:
+      # Enhanced security context for production
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 2000
+      containers:
+        - name: jaeger
+          # jaegertracing/all-in-one:1.45 - Production version with security patches
+          image: jaegertracing/all-in-one:1.45
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 16686
+              protocol: TCP
+            - name: grpc
+              containerPort: 14250
+              protocol: TCP
+            - name: zipkin
+              containerPort: 9411
+              protocol: TCP
+          resources:
+            limits:
+              cpu: "1000m"
+              memory: "2Gi"
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+          volumeMounts:
+            - name: config
+              mountPath: /etc/jaeger
+              readOnly: true
+          env:
+            - name: COLLECTOR_ZIPKIN_HOST_PORT
+              value: ":9411"
+            - name: MEMORY_MAX_TRACES
+              value: "50000"
+            - name: SAMPLING_STRATEGIES_FILE
+              value: "/etc/jaeger/sampling.json"
+            - name: METRICS_STORAGE_TYPE
+              value: "prometheus"
+          # Health checks for production reliability
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 16686
+            initialDelaySeconds: 30
+            periodSeconds: 15
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 16686
+            initialDelaySeconds: 15
+            periodSeconds: 10
+      # Mount configuration from ConfigMap
+      volumes:
+        - name: config
+          configMap:
+            name: jaeger-config
