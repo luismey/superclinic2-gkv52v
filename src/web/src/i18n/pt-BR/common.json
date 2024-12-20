@@ -1,0 +1,106 @@
+{
+  "actions": {
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "create": "Criar",
+    "update": "Atualizar",
+    "confirm": "Confirmar",
+    "back": "Voltar",
+    "next": "Próximo",
+    "finish": "Finalizar",
+    "search": "Pesquisar",
+    "filter": "Filtrar",
+    "clear": "Limpar",
+    "refresh": "Atualizar",
+    "close": "Fechar",
+    "send": "Enviar",
+    "try_again": "Tentar novamente",
+    "schedule": "Agendar",
+    "reschedule": "Reagendar",
+    "diagnose": "Diagnosticar",
+    "prescribe": "Prescrever",
+    "refer": "Encaminhar",
+    "approve": "Aprovar",
+    "reject": "Rejeitar"
+  },
+  "navigation": {
+    "dashboard": "Painel",
+    "chats": "Conversas",
+    "campaigns": "Campanhas",
+    "analytics": "Análises",
+    "settings": "Configurações",
+    "profile": "Perfil",
+    "logout": "Sair",
+    "help": "Ajuda",
+    "notifications": "Notificações",
+    "appointments": "Agendamentos",
+    "patients": "Pacientes",
+    "treatments": "Tratamentos",
+    "prescriptions": "Prescrições",
+    "billing": "Faturamento"
+  },
+  "notifications": {
+    "whatsapp": {
+      "connection_error": "Erro de conexão com WhatsApp. Reconectando...",
+      "message_failed": "Falha no envio da mensagem. Tente novamente",
+      "template_rejected": "Modelo de mensagem rejeitado pelo WhatsApp",
+      "business_verified": "Conta business verificada com sucesso",
+      "qr_code_ready": "QR Code disponível para conexão"
+    },
+    "ai_assistant": {
+      "processing": "Assistente virtual processando sua solicitação...",
+      "suggestion": "Sugestão do assistente disponível",
+      "learning": "Aprendendo com novas informações...",
+      "confidence": "Nível de confiança: {{level}}%"
+    },
+    "healthcare": {
+      "appointment_confirmed": "Consulta confirmada para {{date}}",
+      "prescription_ready": "Prescrição disponível para {{patient}}",
+      "treatment_updated": "Plano de tratamento atualizado",
+      "patient_waiting": "Paciente aguardando atendimento",
+      "emergency_alert": "Alerta de emergência: {{message}}"
+    }
+  },
+  "ui": {
+    "healthcare_forms": {
+      "patient_name": "Nome do paciente",
+      "medical_record": "Prontuário",
+      "symptoms": "Sintomas",
+      "diagnosis": "Diagnóstico",
+      "treatment_plan": "Plano de tratamento",
+      "prescription": "Prescrição",
+      "insurance": "Convênio",
+      "allergies": "Alergias"
+    },
+    "appointment_scheduler": {
+      "morning": "Manhã (08:00 - 12:00)",
+      "afternoon": "Tarde (13:00 - 18:00)",
+      "evening": "Noite (18:00 - 22:00)",
+      "duration": "Duração da consulta",
+      "type": "Tipo de atendimento",
+      "priority": "Prioridade"
+    }
+  },
+  "payments": {
+    "methods": {
+      "pix": "PIX",
+      "credit_card": "Cartão de Crédito",
+      "installments": "Parcelamento",
+      "health_insurance": "Convênio"
+    },
+    "currency": {
+      "format": "R$ {{value}}",
+      "cents": "centavos",
+      "installment": "{{times}}x de {{value}}"
+    },
+    "status": {
+      "pending": "Pagamento pendente",
+      "processing": "Processando pagamento",
+      "approved": "Pagamento aprovado",
+      "rejected": "Pagamento rejeitado",
+      "refunded": "Pagamento reembolsado"
+    }
+  }
+}
