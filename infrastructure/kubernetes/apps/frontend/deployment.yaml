@@ -1,0 +1,171 @@
+# Frontend Deployment Configuration for Porfin Platform
+# Version: v1.25+
+# Purpose: Defines the Next.js frontend application deployment with enhanced security,
+# high availability, and resource optimization
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: porfin-frontend
+  namespace: porfin-system
+  labels:
+    app: porfin
+    component: frontend
+    managed-by: terraform
+    environment: ${ENV}
+    version: "1.0.0"
+  annotations:
+    # Monitoring configuration
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "3000"
+    prometheus.io/path: "/metrics"
+    # Security configuration
+    security.cloud.google.com/use-workload-identity: "true"
+    # Deployment metadata
+    kubernetes.io/change-cause: "Initial deployment of frontend application"
+    deployment.kubernetes.io/revision: "1"
+
+spec:
+  # High availability configuration with 3 replicas
+  replicas: 3
+  
+  # Pod selector matching service configuration
+  selector:
+    matchLabels:
+      app: porfin
+      component: frontend
+  
+  # Zero-downtime deployment strategy
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  
+  template:
+    metadata:
+      labels:
+        app: porfin
+        component: frontend
+        version: "1.0.0"
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "3000"
+        prometheus.io/path: "/metrics"
+        security.cloud.google.com/use-workload-identity: "true"
+    
+    spec:
+      # Service account configuration from imported service-accounts.yaml
+      serviceAccountName: porfin-frontend
+      
+      # Enhanced pod security context
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      
+      # Container configuration
+      containers:
+        - name: frontend
+          image: gcr.io/${PROJECT_ID}/porfin-frontend:${TAG}
+          imagePullPolicy: IfNotPresent
+          
+          ports:
+            - containerPort: 3000
+              name: http
+              protocol: TCP
+          
+          # Resource allocation based on performance requirements
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
+          
+          # Enhanced container security context
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            readOnlyRootFilesystem: true
+          
+          # Environment configuration from imported configmap.yaml
+          envFrom:
+            - configMapRef:
+                name: app-config
+          
+          # Health check configuration
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 2
+          
+          startupProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 30
+          
+          # Volume mounts for temporary storage
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+              readOnly: false
+      
+      # Temporary volume configuration
+      volumes:
+        - name: tmp
+          emptyDir: {}
+      
+      # Pod distribution and anti-affinity rules
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: porfin
+                    component: frontend
+                topologyKey: topology.kubernetes.io/zone
+      
+      # Topology spread constraints for multi-zone deployment
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: porfin
+              component: frontend
+      
+      # Pod termination configuration
+      terminationGracePeriodSeconds: 60
+      
+      # Node selection and tolerations
+      nodeSelector:
+        cloud.google.com/gke-nodepool: frontend-pool
+      tolerations:
+        - key: "frontend-workload"
+          operator: "Equal"
+          value: "true"
+          effect: "NoSchedule"
