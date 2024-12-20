@@ -1,0 +1,111 @@
+version: "3.9"
+
+services:
+  api:
+    build:
+      context: .
+      target: development
+      args:
+        PYTHON_VERSION: "3.11"
+        ENVIRONMENT: "development"
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - dev-certs:/etc/certs
+    environment:
+      - ENVIRONMENT=development
+      - DEBUG=true
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - LOG_LEVEL=debug
+      - PYTHONPATH=/app
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+      - TZ=America/Sao_Paulo
+      - LANG=pt_BR.UTF-8
+    depends_on:
+      redis:
+        condition: service_healthy
+    command: >
+      uvicorn app.main:app 
+      --host 0.0.0.0 
+      --port 8000 
+      --reload 
+      --ssl-keyfile=/etc/certs/key.pem 
+      --ssl-certfile=/etc/certs/cert.pem
+    healthcheck:
+      test: ["CMD", "curl", "-f", "https://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    restart: unless-stopped
+    mem_limit: 2g
+    mem_reservation: 1g
+    cpus: 2
+    networks:
+      - backend
+
+  redis:
+    image: redis:6.2-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: [
+      "redis-server",
+      "--appendonly", "yes",
+      "--maxmemory", "1gb",
+      "--maxmemory-policy", "allkeys-lru",
+      "--save", "900", "1",
+      "--save", "300", "10", 
+      "--save", "60", "10000",
+      "--requirepass", "${REDIS_PASSWORD}"
+    ]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    restart: unless-stopped
+    mem_limit: 2g
+    mem_reservation: 1g
+    cpus: 1
+    networks:
+      - backend
+
+volumes:
+  redis_data:
+    driver: local
+    labels:
+      backup: "true"
+      retention: "7d"
+  dev-certs:
+    driver: local
+    labels:
+      environment: "development"
+      type: "certificates"
+
+networks:
+  backend:
+    driver: bridge
+    internal: true
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.28.0.0/16"
+    labels:
+      environment: "development"
+      project: "porfin"
