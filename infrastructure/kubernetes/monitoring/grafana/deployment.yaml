@@ -1,0 +1,90 @@
+# Grafana Deployment manifest for Porfin monitoring stack
+# Version: grafana/grafana:9.5.3
+# Purpose: Provides visualization and analytics for system metrics, logs and traces
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: porfin-system
+  labels:
+    app: grafana
+    component: monitoring
+    part-of: porfin
+    managed-by: kubernetes
+spec:
+  # Single replica as Grafana uses persistent storage
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+      component: monitoring
+  template:
+    metadata:
+      labels:
+        app: grafana
+        component: monitoring
+        part-of: porfin
+        managed-by: kubernetes
+      annotations:
+        # Enable Prometheus metrics scraping
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "3000"
+    spec:
+      # Security context for running as non-root user
+      securityContext:
+        fsGroup: 472  # Grafana group ID
+        runAsUser: 472  # Grafana user ID
+        runAsNonRoot: true
+      containers:
+        - name: grafana
+          image: grafana/grafana:9.5.3
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          # Resource limits and requests for reliable performance
+          resources:
+            requests:
+              cpu: "200m"     # 0.2 CPU cores minimum
+              memory: "512Mi" # 512MB minimum memory
+            limits:
+              cpu: "500m"     # Max 0.5 CPU cores
+              memory: "1Gi"   # Max 1GB memory
+          volumeMounts:
+            - name: config
+              mountPath: /etc/grafana
+              readOnly: true
+            - name: dashboards
+              mountPath: /var/lib/grafana/dashboards
+              readOnly: true
+            - name: data
+              mountPath: /var/lib/grafana
+          # Health monitoring probes
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+      # Volume configurations
+      volumes:
+        - name: config
+          configMap:
+            name: grafana-config
+        - name: dashboards
+          configMap:
+            name: grafana-dashboards
+        - name: data
+          persistentVolumeClaim:
+            claimName: grafana-data
