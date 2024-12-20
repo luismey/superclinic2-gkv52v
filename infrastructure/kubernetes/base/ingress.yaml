@@ -1,0 +1,81 @@
+# Kubernetes Ingress resource for Porfin application
+# Version: networking.k8s.io/v1
+# Purpose: Configure external access, TLS, and routing rules for frontend and backend services
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: porfin-ingress
+  namespace: porfin-system
+  labels:
+    app: porfin
+    managed-by: terraform
+    environment: production
+  annotations:
+    # Ingress class and SSL configuration
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    
+    # Request size and timeout configurations
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
+    
+    # Buffer configurations for optimal performance
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "8k"
+    nginx.ingress.kubernetes.io/large-client-header-buffers: "4 8k"
+    nginx.ingress.kubernetes.io/client-body-buffer-size: "64k"
+    
+    # SSL certificate management
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    
+    # CORS configuration
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, DELETE, PATCH, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-credentials: "true"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization"
+    
+    # Security headers configuration
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "X-Frame-Options: DENY";
+      more_set_headers "X-Content-Type-Options: nosniff";
+      more_set_headers "X-XSS-Protection: 1; mode=block";
+    
+    # Rate limiting for DDoS protection
+    nginx.ingress.kubernetes.io/limit-rps: "100"
+    nginx.ingress.kubernetes.io/limit-connections: "1000"
+    
+    # ModSecurity WAF configuration
+    nginx.ingress.kubernetes.io/enable-modsecurity: "true"
+    nginx.ingress.kubernetes.io/enable-owasp-core-rules: "true"
+
+spec:
+  # TLS configuration
+  tls:
+    - hosts:
+        - ${DOMAIN}
+      secretName: porfin-tls
+  
+  # Routing rules
+  rules:
+    - host: ${DOMAIN}
+      http:
+        paths:
+          # Backend API routing
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: backend-service
+                port:
+                  number: 8000
+          
+          # Frontend application routing
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend-service
+                port:
+                  number: 3000
