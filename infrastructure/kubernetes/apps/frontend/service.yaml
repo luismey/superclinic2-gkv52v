@@ -1,0 +1,56 @@
+# Kubernetes Service manifest for Porfin frontend application
+# Version: v1.25+
+# Purpose: Defines service configuration for routing traffic to frontend pods with load balancing
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: porfin-frontend
+  namespace: porfin-system
+  labels:
+    app: porfin
+    component: frontend
+    managed-by: terraform
+    environment: ${ENV}
+    version: "1.0.0"
+  annotations:
+    # GCP-specific annotations for load balancing and NEG integration
+    cloud.google.com/neg: '{"ingress": true}'
+    cloud.google.com/backend-config: '{"default": "frontend-config"}'
+    cloud.google.com/app-protocols: '{"http": "HTTP"}'
+    
+    # Monitoring annotations
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "3000"
+    prometheus.io/path: "/metrics"
+    
+    # Service mesh configuration
+    service.istio.io/canonical-name: porfin-frontend
+    service.istio.io/canonical-revision: "v1"
+
+spec:
+  # Using ClusterIP for internal access, external traffic managed by Ingress
+  type: ClusterIP
+  
+  # Port configuration matching frontend deployment
+  ports:
+    - name: http
+      port: 80  # Service port
+      targetPort: 3000  # Container port (matches deployment)
+      protocol: TCP
+  
+  # Selector matching frontend deployment pod labels
+  selector:
+    app: porfin
+    component: frontend
+  
+  # Session configuration
+  sessionAffinity: None
+  
+  # Publishing configuration
+  publishNotReadyAddresses: false
+  
+  # IP configuration
+  ipFamilyPolicy: SingleStack
+  ipFamilies:
+    - IPv4
