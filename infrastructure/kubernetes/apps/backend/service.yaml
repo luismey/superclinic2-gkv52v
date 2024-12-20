@@ -1,0 +1,64 @@
+# Kubernetes Service configuration for Porfin backend FastAPI application
+# Version: v1
+# Purpose: Defines internal service discovery and load balancing for backend pods
+# with enhanced monitoring capabilities and service mesh integration
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+  namespace: porfin-system
+  labels:
+    app: porfin
+    component: backend
+    environment: ${ENV}
+    managed-by: terraform
+    # Service mesh integration label
+    service-mesh.porfin.io/enabled: "true"
+  annotations:
+    # Prometheus monitoring configuration
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9090"
+    prometheus.io/path: "/metrics"
+    
+    # Load balancing configuration
+    service.porfin.io/load-balancer-type: "round-robin"
+    
+    # Service mesh traffic management
+    traffic.sidecar.istio.io/includeInboundPorts: "8000,9090"
+    
+    # Security compliance
+    security.compliance/data-classification: "restricted"
+    security.compliance/lgpd-compliant: "true"
+
+spec:
+  # Internal cluster service type for secure pod-to-pod communication
+  type: ClusterIP
+  
+  # Service ports configuration
+  ports:
+    # Main FastAPI application port
+    - name: http-api
+      port: 8000
+      targetPort: http
+      protocol: TCP
+    
+    # Prometheus metrics endpoint
+    - name: prometheus-metrics
+      port: 9090
+      targetPort: metrics
+      protocol: TCP
+  
+  # Pod selector matching deployment labels
+  selector:
+    app: porfin
+    component: backend
+  
+  # Session handling configuration
+  sessionAffinity: None
+  
+  # Publishing configuration
+  publishNotReadyAddresses: false
+  
+  # Internal traffic policy for improved security
+  internalTrafficPolicy: Cluster
