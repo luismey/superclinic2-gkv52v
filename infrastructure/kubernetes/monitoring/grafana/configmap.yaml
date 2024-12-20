@@ -1,0 +1,152 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-config
+  namespace: porfin-system
+  labels:
+    app: grafana
+    component: monitoring
+    part-of: porfin
+    managed-by: kubernetes
+data:
+  grafana.ini: |
+    # Grafana Server Configuration
+    [server]
+    http_port = 3000
+    domain = monitoring.porfin.com
+    root_url = %(protocol)s://%(domain)s/grafana
+    serve_from_sub_path = true
+    protocol = https
+    enforce_domain = true
+    
+    # Enhanced Security Settings for Healthcare Data
+    [security]
+    admin_user = ${GRAFANA_ADMIN_USER}
+    admin_password = ${GRAFANA_ADMIN_PASSWORD}
+    secret_key = ${GRAFANA_SECRET_KEY}
+    cookie_secure = true
+    cookie_samesite = strict
+    disable_gravatar = true
+    strict_transport_security = true
+    content_security_policy = true
+    x_content_type_options = true
+    x_xss_protection = true
+    allow_embedding = false
+    
+    # Authentication Configuration
+    [auth]
+    disable_login_form = false
+    disable_signout_menu = false
+    oauth_auto_login = false
+    signout_redirect_url = https://porfin.com/logout
+    login_maximum_inactive_lifetime_duration = 7d
+    login_maximum_lifetime_duration = 30d
+    
+    # User Management
+    [users]
+    allow_sign_up = false
+    auto_assign_org = true
+    auto_assign_org_role = Editor
+    default_theme = light
+    viewers_can_edit = false
+    editors_can_admin = false
+    
+    # Analytics and Updates
+    [analytics]
+    reporting_enabled = false
+    check_for_updates = false
+    feedback_links_enabled = false
+    
+    # Logging Configuration
+    [log]
+    mode = console file
+    level = info
+    filters = monitoring:debug
+    
+    # Metrics Collection
+    [metrics]
+    enabled = true
+    interval_seconds = 10
+    
+    # LGPD Compliance Settings
+    [auth.anonymous]
+    enabled = false
+    
+    [snapshots]
+    external_enabled = false
+    
+    [dashboards]
+    versions_to_keep = 20
+    min_refresh_interval = 5s
+
+  datasources.yaml: |
+    apiVersion: 1
+    datasources:
+      # Prometheus Data Source
+      - name: Prometheus
+        type: prometheus
+        access: proxy
+        url: http://prometheus-service:9090
+        isDefault: true
+        version: 1
+        editable: false
+        jsonData:
+          timeInterval: "30s"
+          queryTimeout: "60s"
+          httpMethod: "POST"
+          exemplarTraceIdDestinations:
+            - name: trace_id
+              datasourceUid: jaeger
+          manageAlerts: true
+          alertmanagerUid: alertmanager
+          
+      # Jaeger Data Source for Distributed Tracing
+      - name: Jaeger
+        type: jaeger
+        access: proxy
+        url: http://jaeger-query:16686
+        version: 1
+        editable: false
+        jsonData:
+          nodeGraph:
+            enabled: true
+          search:
+            maxLookback: 30d
+          spanBar:
+            type: "relative"
+
+  dashboards.yaml: |
+    apiVersion: 1
+    providers:
+      # Healthcare Operations Dashboards
+      - name: "Porfin Dashboards"
+        folder: "Porfin"
+        type: file
+        disableDeletion: true
+        updateIntervalSeconds: 60
+        allowUiUpdates: false
+        options:
+          path: /var/lib/grafana/dashboards
+          foldersFromFilesStructure: true
+        
+      # Security Monitoring Dashboards
+      - name: "Security Dashboards"
+        folder: "Security"
+        type: file
+        disableDeletion: true
+        updateIntervalSeconds: 30
+        allowUiUpdates: false
+        options:
+          path: /var/lib/grafana/security-dashboards
+          foldersFromFilesStructure: true
+        
+      # Performance Monitoring Dashboards
+      - name: "Performance Dashboards"
+        folder: "Performance"
+        type: file
+        disableDeletion: true
+        updateIntervalSeconds: 30
+        allowUiUpdates: false
+        options:
+          path: /var/lib/grafana/performance-dashboards
+          foldersFromFilesStructure: true
