@@ -1,0 +1,95 @@
+# Production Kustomization Configuration for Porfin Platform
+# kustomize v5.0.0
+# 
+# This configuration implements production-grade customizations including:
+# - High availability and multi-zone deployment
+# - LGPD compliance and security controls
+# - Resource optimization and auto-scaling
+# - Comprehensive monitoring and observability
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Production namespace configuration
+namespace: porfin-prod
+namePrefix: prod-
+
+# Production environment labels
+commonLabels:
+  environment: production
+  managed-by: kustomize
+  app.kubernetes.io/part-of: porfin
+  app.kubernetes.io/environment: production
+
+# Production-specific annotations for compliance and monitoring
+commonAnnotations:
+  maintainer: porfin-team
+  environment: production
+  compliance.porfin.io/lgpd: enabled
+  security.porfin.io/encryption: enabled
+  monitoring.porfin.io/enabled: "true"
+
+# Base resources and production-specific components
+resources:
+  # Core application base
+  - ../../base
+  # Monitoring stack
+  - ../../monitoring/prometheus
+  - ../../monitoring/grafana
+  - ../../monitoring/jaeger
+  # Security policies
+  - ../../security/network-policies
+  - ../../security/pod-security-policies
+
+# Production-specific patches for resource optimization and high availability
+patches:
+  # Backend service resource requirements
+  - path: patches/backend-resources.yaml
+    target:
+      kind: Deployment
+      name: backend-deployment
+  
+  # Frontend service resource requirements
+  - path: patches/frontend-resources.yaml
+    target:
+      kind: Deployment
+      name: frontend-deployment
+  
+  # Horizontal Pod Autoscaling configuration
+  - path: patches/hpa-scaling.yaml
+    target:
+      kind: HorizontalPodAutoscaler
+      name: backend-hpa
+  
+  # Pod Disruption Budget for availability guarantees
+  - path: patches/pdb-config.yaml
+    target:
+      kind: PodDisruptionBudget
+      name: backend-pdb
+
+# Production configuration settings
+configMapGenerator:
+  - name: app-config
+    behavior: merge
+    literals:
+      - APP_ENV=production
+      - LOG_LEVEL=info
+      - MIN_REPLICAS=3
+      - MAX_REPLICAS=10
+      - MONITORING_ENABLED=true
+      - TRACING_ENABLED=true
+      - ENCRYPTION_ENABLED=true
+
+# Production secrets management
+secretGenerator:
+  - name: prod-secrets
+    behavior: merge
+    envs:
+      - secrets/prod.env
+
+# Container image configuration
+images:
+  - name: gcr.io/porfin/backend
+    newTag: ${IMAGE_TAG}
+  - name: gcr.io/porfin/frontend
+    newTag: ${IMAGE_TAG}
