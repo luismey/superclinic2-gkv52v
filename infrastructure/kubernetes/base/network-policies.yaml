@@ -1,0 +1,195 @@
+# Network policies for Porfin application implementing zero-trust networking principles
+# Version: networking.k8s.io/v1
+# Last updated: 2023-12-01
+# Purpose: Define comprehensive network security and isolation rules
+
+---
+# Default deny-all policy to implement zero-trust networking
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: porfin-system
+  labels:
+    app: porfin
+    managed-by: kustomize
+    security-tier: network
+    compliance: lgpd
+  annotations:
+    porfin.io/security-level: strict
+    porfin.io/last-reviewed: "2023-12-01"
+    porfin.io/compliance: lgpd-network-security
+spec:
+  podSelector: {}  # Applies to all pods in namespace
+  policyTypes:
+    - Ingress
+    - Egress
+
+---
+# Allow ingress traffic to backend services
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-backend-ingress
+  namespace: porfin-system
+  labels:
+    app: porfin
+    managed-by: kustomize
+    security-tier: network
+    compliance: lgpd
+spec:
+  podSelector:
+    matchLabels:
+      app: porfin
+      component: backend
+  policyTypes:
+    - Ingress
+  ingress:
+    # Allow frontend to backend communication
+    - from:
+        - podSelector:
+            matchLabels:
+              app: porfin
+              component: frontend
+      ports:
+        - protocol: TCP
+          port: 8000
+        - protocol: TCP
+          port: 8080
+    
+    # Allow monitoring system access
+    - from:
+        - podSelector:
+            matchLabels:
+              app: porfin
+              component: monitoring
+      ports:
+        - protocol: TCP
+          port: 9090
+    
+    # Allow ingress controller access
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 8000
+
+    # Allow Kubernetes health checks
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: kube-system
+      ports:
+        - protocol: TCP
+          port: 8000
+
+---
+# Allow egress traffic from backend services
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-backend-egress
+  namespace: porfin-system
+  labels:
+    app: porfin
+    managed-by: kustomize
+    security-tier: network
+    compliance: lgpd
+spec:
+  podSelector:
+    matchLabels:
+      app: porfin
+      component: backend
+  policyTypes:
+    - Egress
+  egress:
+    # Allow Cloud SQL access
+    - to:
+        - ipBlock:
+            cidr: 10.0.0.0/8  # Cloud SQL private IP range
+      ports:
+        - protocol: TCP
+          port: 5432
+    
+    # Allow Redis access
+    - to:
+        - ipBlock:
+            cidr: 10.1.0.0/16  # Redis private IP range
+      ports:
+        - protocol: TCP
+          port: 6379
+    
+    # Allow Cloud Storage API access
+    - to:
+        - ipBlock:
+            cidr: 199.36.153.8/30  # Google APIs
+            except:
+              - 199.36.153.9/32
+      ports:
+        - protocol: TCP
+          port: 443
+    
+    # Allow WhatsApp API access
+    - to:
+        - ipBlock:
+            cidr: 31.13.64.0/19  # WhatsApp API range
+      ports:
+        - protocol: TCP
+          port: 443
+    
+    # Allow OpenAI API access
+    - to:
+        - ipBlock:
+            cidr: 104.18.6.0/20  # OpenAI API range
+      ports:
+        - protocol: TCP
+          port: 443
+    
+    # Allow DNS resolution
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: kube-system
+        - podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+
+---
+# Allow monitoring system network access
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-monitoring
+  namespace: porfin-system
+  labels:
+    app: porfin
+    managed-by: kustomize
+    security-tier: network
+    compliance: lgpd
+spec:
+  podSelector:
+    matchLabels:
+      app: porfin
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: monitoring
+        - podSelector:
+            matchLabels:
+              app: prometheus
+      ports:
+        - protocol: TCP
+          port: 9090
