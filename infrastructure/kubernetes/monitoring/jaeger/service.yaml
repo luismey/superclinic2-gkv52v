@@ -1,0 +1,53 @@
+# Kubernetes Service manifest for Jaeger distributed tracing system
+# Version: 1.0.0
+# Purpose: Exposes Jaeger endpoints for distributed tracing and monitoring
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: jaeger
+  namespace: porfin-system
+  labels:
+    app: jaeger
+    component: tracing
+    part-of: monitoring
+    version: 1.0.0
+  annotations:
+    # Enable Prometheus metrics scraping
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "16686"
+
+spec:
+  # Using ClusterIP for internal access within the cluster
+  type: ClusterIP
+  
+  # Select pods with the jaeger app label
+  selector:
+    app: jaeger
+  
+  # Define ports for different Jaeger interfaces
+  ports:
+    # Jaeger UI and Query Service
+    - name: http
+      port: 16686
+      targetPort: 16686
+      protocol: TCP
+    
+    # Jaeger Collector gRPC interface
+    - name: grpc
+      port: 14250
+      targetPort: 14250
+      protocol: TCP
+    
+    # Zipkin compatibility endpoint
+    - name: zipkin
+      port: 9411
+      targetPort: 9411
+      protocol: TCP
+  
+  # Enable session affinity for consistent routing
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      # Set timeout for session affinity (3 hours)
+      timeoutSeconds: 10800
