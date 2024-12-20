@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jaeger-config
+  namespace: porfin-system
+  labels:
+    app: jaeger
+    component: tracing
+data:
+  # Sampling configuration for different services
+  sampling.json: |
+    {
+      "default_strategy": {
+        "type": "probabilistic",
+        "param": 1.0
+      },
+      "service_strategies": [
+        {
+          "service": "porfin-api",
+          "type": "probabilistic",
+          "param": 1.0
+        },
+        {
+          "service": "porfin-web",
+          "type": "probabilistic",
+          "param": 1.0
+        },
+        {
+          "service": "whatsapp-service",
+          "type": "probabilistic",
+          "param": 1.0
+        },
+        {
+          "service": "ai-service",
+          "type": "probabilistic",
+          "param": 1.0
+        }
+      ]
+    }
+
+  # Jaeger agent configuration
+  agent.yaml: |
+    reporter:
+      grpc:
+        host-port: "jaeger-collector:14250"
+    processors:
+      batch:
+        workers: 4
+        queue-size: 2000
+        timeout: "1s"
+
+  # Jaeger collector configuration
+  collector.yaml: |
+    collector:
+      zipkin:
+        host-port: ":9411"
+      otlp:
+        enabled: true
+        grpc:
+          host-port: ":4317"
+        http:
+          host-port: ":4318"
+      queue:
+        num-workers: 50
+        queue-size: 2000
+    sampling:
+      strategies-file: "/etc/jaeger/sampling.json"
