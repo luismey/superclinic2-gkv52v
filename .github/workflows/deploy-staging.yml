@@ -1,0 +1,156 @@
+name: Deploy to Staging
+
+on:
+  push:
+    branches:
+      - develop
+  workflow_dispatch:
+
+env:
+  GCP_PROJECT_ID: porfin-staging
+  GCP_REGION: southamerica-east1
+  NAMESPACE: porfin-staging
+  TF_WORKSPACE: staging
+  TF_VERSION: 1.5.0
+  CLUSTER_NAME: porfin-staging
+  DEPLOYMENT_ENV: staging
+
+jobs:
+  deploy:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SA_EMAIL }}
+          token_format: access_token
+          create_credentials_file: true
+
+      - name: Setup Google Cloud CLI
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          version: latest
+          install_components: |
+            gke-gcloud-auth-plugin
+            kubectl
+            beta
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Initialize Terraform
+        run: |
+          cd infrastructure/terraform/environments/staging
+          terraform init \
+            -backend-config="bucket=porfin-staging-tf-state" \
+            -backend-config="prefix=staging"
+
+      - name: Validate Terraform Configuration
+        run: |
+          cd infrastructure/terraform/environments/staging
+          terraform validate
+          terraform plan -detailed-exitcode
+
+      - name: Apply Infrastructure Changes
+        run: |
+          cd infrastructure/terraform/environments/staging
+          terraform apply -auto-approve
+        env:
+          TF_VAR_project_id: ${{ env.GCP_PROJECT_ID }}
+          TF_VAR_region: ${{ env.GCP_REGION }}
+          TF_VAR_environment: ${{ env.DEPLOYMENT_ENV }}
+
+      - name: Configure kubectl
+        run: |
+          gcloud container clusters get-credentials ${{ env.CLUSTER_NAME }} \
+            --region ${{ env.GCP_REGION }} \
+            --project ${{ env.GCP_PROJECT_ID }}
+
+      - name: Build and Push Images
+        run: |
+          gcloud auth configure-docker gcr.io
+          
+          # Build and push frontend
+          docker build -t gcr.io/${{ env.GCP_PROJECT_ID }}/frontend:staging ./frontend
+          docker push gcr.io/${{ env.GCP_PROJECT_ID }}/frontend:staging
+          
+          # Build and push backend
+          docker build -t gcr.io/${{ env.GCP_PROJECT_ID }}/backend:staging ./backend
+          docker push gcr.io/${{ env.GCP_PROJECT_ID }}/backend:staging
+          
+          # Build and push AI service
+          docker build -t gcr.io/${{ env.GCP_PROJECT_ID }}/ai-service:staging ./ai-service
+          docker push gcr.io/${{ env.GCP_PROJECT_ID }}/ai-service:staging
+
+      - name: Deploy Applications with Blue-Green Strategy
+        run: |
+          # Apply Kustomize configurations
+          kubectl apply -k infrastructure/kubernetes/overlays/staging
+          
+          # Wait for new deployments to be ready
+          kubectl -n ${{ env.NAMESPACE }} rollout status deployment/staging-frontend-deployment-blue
+          kubectl -n ${{ env.NAMESPACE }} rollout status deployment/staging-backend-deployment-blue
+          kubectl -n ${{ env.NAMESPACE }} rollout status deployment/staging-ai-service-deployment-blue
+          
+          # Switch traffic to new version if health checks pass
+          kubectl -n ${{ env.NAMESPACE }} patch service staging-frontend-service -p '{"spec":{"selector":{"deployment":"blue"}}}'
+          kubectl -n ${{ env.NAMESPACE }} patch service staging-backend-service -p '{"spec":{"selector":{"deployment":"blue"}}}'
+          kubectl -n ${{ env.NAMESPACE }} patch service staging-ai-service-service -p '{"spec":{"selector":{"deployment":"blue"}}}'
+
+      - name: Run Smoke Tests
+        run: |
+          # Wait for services to be fully available
+          sleep 30
+          
+          # Run API health checks
+          curl -f https://api-staging.porfin.io/health
+          
+          # Verify critical endpoints
+          curl -f https://api-staging.porfin.io/api/v1/status
+          
+          # Test WhatsApp connectivity
+          curl -f https://api-staging.porfin.io/api/v1/whatsapp/status
+          
+          # Verify AI service functionality
+          curl -f https://api-staging.porfin.io/api/v1/ai/health
+
+      - name: Monitor Deployment
+        run: |
+          # Check deployment metrics
+          kubectl -n ${{ env.NAMESPACE }} get deployments -o wide
+          
+          # Verify pod health
+          kubectl -n ${{ env.NAMESPACE }} get pods
+          
+          # Check service endpoints
+          kubectl -n ${{ env.NAMESPACE }} get endpoints
+          
+          # Monitor logs for errors
+          kubectl -n ${{ env.NAMESPACE }} logs -l app.kubernetes.io/part-of=porfin --tail=50
+
+      - name: Rollback on Failure
+        if: failure()
+        run: |
+          # Switch traffic back to green deployment
+          kubectl -n ${{ env.NAMESPACE }} patch service staging-frontend-service -p '{"spec":{"selector":{"deployment":"green"}}}'
+          kubectl -n ${{ env.NAMESPACE }} patch service staging-backend-service -p '{"spec":{"selector":{"deployment":"green"}}}'
+          kubectl -n ${{ env.NAMESPACE }} patch service staging-ai-service-service -p '{"spec":{"selector":{"deployment":"green"}}}'
+          
+          # Delete failed blue deployments
+          kubectl -n ${{ env.NAMESPACE }} delete deployment -l deployment=blue
+          
+          echo "Deployment failed - rolled back to previous version"
+          exit 1
