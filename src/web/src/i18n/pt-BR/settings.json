@@ -1,0 +1,131 @@
+{
+  "common": {
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "loading": "Carregando...",
+    "success": "Alterações salvas com sucesso",
+    "error": "Erro ao salvar alterações",
+    "required": "Campo obrigatório",
+    "currency_format": "R$ {{value}},00",
+    "date_format": "DD/MM/YYYY",
+    "phone_format": "(XX) XXXXX-XXXX",
+    "time_format": "HH:mm",
+    "datetime_format": "DD/MM/YYYY às HH:mm"
+  },
+  "navigation": {
+    "profile": "Perfil",
+    "whatsapp": "WhatsApp",
+    "ai_assistant": "Assistente Virtual",
+    "billing": "Faturamento",
+    "team": "Equipe",
+    "privacy": "Privacidade e LGPD",
+    "help": "Ajuda e Suporte"
+  },
+  "profile": {
+    "title": "Configurações de Perfil",
+    "subtitle": "Gerencie suas informações pessoais e da clínica",
+    "professional_info": {
+      "title": "Informações Profissionais",
+      "crm": "CRM",
+      "specialty": "Especialidade",
+      "professional_address": "Endereço Profissional"
+    },
+    "clinic_info": {
+      "title": "Informações da Clínica",
+      "cnpj": "CNPJ",
+      "technical_director": "Diretor Técnico",
+      "sanitary_license": "Licença Sanitária"
+    },
+    "working_hours": {
+      "title": "Horário de Atendimento",
+      "weekdays": "Segunda a Sexta",
+      "saturday": "Sábado",
+      "sunday": "Domingo",
+      "holidays": "Feriados"
+    }
+  },
+  "whatsapp": {
+    "business_verification": {
+      "title": "Verificação Empresarial",
+      "status": "Status da Verificação",
+      "documents_required": "Documentos Necessários",
+      "submit_verification": "Enviar para Verificação"
+    },
+    "message_templates": {
+      "title": "Modelos de Mensagem",
+      "approval_status": "Status de Aprovação",
+      "submit_review": "Enviar para Revisão"
+    },
+    "compliance": {
+      "title": "Conformidade",
+      "opt_in_message": "Mensagem de Opt-in",
+      "privacy_policy": "Política de Privacidade",
+      "data_retention": "Retenção de Dados"
+    }
+  },
+  "ai_assistant": {
+    "healthcare_compliance": {
+      "title": "Conformidade com Regulamentações",
+      "cfm_guidelines": "Diretrizes CFM",
+      "patient_privacy": "Privacidade do Paciente",
+      "medical_terms": "Termos Médicos"
+    },
+    "knowledge_base": {
+      "medical_procedures": "Procedimentos Médicos",
+      "treatment_protocols": "Protocolos de Tratamento",
+      "pricing_tables": "Tabelas de Preços"
+    }
+  },
+  "billing": {
+    "brazilian_taxes": {
+      "title": "Impostos",
+      "iss": "ISS",
+      "pis": "PIS",
+      "cofins": "COFINS"
+    },
+    "payment_methods": {
+      "pix": {
+        "title": "PIX",
+        "key_types": "Tipos de Chave",
+        "instant_transfer": "Transferência Instantânea"
+      },
+      "boleto": {
+        "title": "Boleto Bancário",
+        "due_date": "Data de Vencimento",
+        "bank_details": "Dados Bancários"
+      }
+    }
+  },
+  "team": {
+    "roles": {
+      "technical_director": "Diretor Técnico",
+      "clinical_staff": "Equipe Clínica",
+      "administrative": "Administrativo"
+    },
+    "permissions": {
+      "patient_data": "Dados de Pacientes",
+      "financial_info": "Informações Financeiras",
+      "clinical_records": "Registros Clínicos"
+    }
+  },
+  "privacy": {
+    "lgpd_compliance": {
+      "title": "Conformidade LGPD",
+      "data_processing": "Processamento de Dados",
+      "patient_rights": "Direitos do Paciente",
+      "consent_management": "Gestão de Consentimento"
+    },
+    "data_protection": {
+      "title": "Proteção de Dados",
+      "security_measures": "Medidas de Segurança",
+      "breach_notification": "Notificação de Violação"
+    }
+  },
+  "validation": {
+    "crm_format": "Formato de CRM inválido",
+    "cnpj_format": "CNPJ inválido",
+    "cpf_format": "CPF inválido",
+    "cep_format": "CEP inválido",
+    "phone_br_format": "Formato de telefone brasileiro inválido"
+  }
+}
