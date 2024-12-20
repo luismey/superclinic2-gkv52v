@@ -1,0 +1,158 @@
+/* Tailwind CSS v3.3.0 */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Root CSS Variables - Light Theme */
+:root {
+  /* Color System */
+  --primary: #0066CC;
+  --secondary: #4A90E2;
+  --accent: #00CC99;
+  --warning: #FFB020;
+  --error: #FF4D4D;
+  --success: #00CC66;
+  --background: #FFFFFF;
+  --text: #2C3E50;
+  --border: #E5E7EB;
+
+  /* Material Design 8px Grid System */
+  --spacing-1: 8px;
+  --spacing-2: 16px;
+  --spacing-3: 24px;
+  --spacing-4: 32px;
+  --spacing-6: 48px;
+  --spacing-8: 64px;
+  --spacing-12: 96px;
+
+  /* Type Scale (1.2 ratio) */
+  --text-xs: 0.75rem;      /* 12px */
+  --text-sm: 0.875rem;     /* 14px */
+  --text-base: 1rem;       /* 16px */
+  --text-lg: 1.2rem;       /* 19.2px */
+  --text-xl: 1.44rem;      /* 23.04px */
+  --text-2xl: 1.728rem;    /* 27.65px */
+  --text-3xl: 2.074rem;    /* 33.18px */
+  --text-4xl: 2.488rem;    /* 39.81px */
+
+  /* Animation Timing */
+  --animation-fast: 150ms;
+  --animation-normal: 300ms;
+  --animation-slow: 500ms;
+  --animation-timing: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Responsive Breakpoints */
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+}
+
+/* Dark Theme Variables */
+.dark {
+  --background: #1A1A1A;
+  --text: #E5E7EB;
+  --border: #374151;
+}
+
+/* Base Styles */
+@layer base {
+  html {
+    font-size: 16px;
+    line-height: 1.5;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--text);
+    transition: background-color var(--animation-normal) var(--animation-timing);
+  }
+
+  /* WCAG 2.1 Level AA Focus Styles */
+  :focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+
+  /* Ensure sufficient color contrast */
+  @media (prefers-contrast: more) {
+    :root {
+      --primary: #0052A3;
+      --text: #000000;
+      --background: #FFFFFF;
+    }
+    .dark {
+      --text: #FFFFFF;
+      --background: #000000;
+    }
+  }
+}
+
+/* Component Styles */
+@layer components {
+  /* Container Query Support */
+  .container-query {
+    container-type: inline-size;
+  }
+
+  /* Fluid Typography */
+  .fluid-text {
+    font-size: clamp(var(--text-base), 1vw + 1rem, var(--text-xl));
+  }
+
+  /* Custom Scrollbar */
+  .scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .scrollbar::-webkit-scrollbar {
+    width: 8px;
+    background: transparent;
+  }
+
+  .scrollbar::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 9999px;
+  }
+}
+
+/* Utility Styles */
+@layer utilities {
+  /* Reduced Motion Support */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* Touch Target Size */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Grid System Helpers */
+  .grid-8 {
+    display: grid;
+    gap: var(--spacing-1);
+  }
+}
+
+/* Print Styles */
+@media print {
+  body {
+    background: none;
+    color: #000;
+  }
+
+  @page {
+    margin: 2cm;
+  }
+}
