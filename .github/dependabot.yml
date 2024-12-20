@@ -1,0 +1,128 @@
+# Dependabot configuration file v2
+# Manages automated dependency updates for Python backend, TypeScript frontend, and GitHub Actions
+version: 2
+
+updates:
+  # Python backend dependencies management
+  - package-ecosystem: "pip"
+    directory: "/src/backend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/Sao_Paulo"
+    # Target branch for pull requests
+    target-branch: "main"
+    # Labels for better organization
+    labels:
+      - "dependencies"
+      - "backend"
+      - "security"
+    # Assign to code owners
+    assignees:
+      - "@CODEOWNERS"
+    # Pull request settings
+    open-pull-requests-limit: 10
+    # Commit message settings
+    commit-message:
+      prefix: "chore(deps)"
+      prefix-development: "chore(deps-dev)"
+      include: "scope"
+    # Security updates configuration
+    security-updates-only: false
+    # Version update strategy
+    versioning-strategy:
+      python-packages:
+        update-type: "all"
+    # Allow list configuration
+    allow:
+      - dependency-type: "direct"
+      - dependency-type: "indirect"
+    # Ignore certain dependencies
+    ignore:
+      - dependency-name: "python"
+        versions: ["4.x"]
+
+  # Node.js frontend dependencies management
+  - package-ecosystem: "npm"
+    directory: "/src/web"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/Sao_Paulo"
+    # Target branch for pull requests
+    target-branch: "main"
+    # Labels for better organization
+    labels:
+      - "dependencies"
+      - "frontend"
+      - "security"
+    # Assign to code owners
+    assignees:
+      - "@CODEOWNERS"
+    # Pull request settings
+    open-pull-requests-limit: 10
+    # Commit message settings
+    commit-message:
+      prefix: "chore(deps)"
+      prefix-development: "chore(deps-dev)"
+      include: "scope"
+    # Security updates configuration
+    security-updates-only: false
+    # Version update strategy
+    versioning-strategy:
+      npm-packages:
+        update-type: "all"
+    # Allow list configuration
+    allow:
+      - dependency-type: "direct"
+      - dependency-type: "production"
+      - dependency-type: "development"
+    # Ignore certain dependencies
+    ignore:
+      - dependency-name: "next"
+        update-types: ["version-update:semver-major"]
+
+  # GitHub Actions workflow dependencies
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/Sao_Paulo"
+    # Labels for better organization
+    labels:
+      - "dependencies"
+      - "ci"
+      - "security"
+    # Assign to code owners
+    assignees:
+      - "@CODEOWNERS"
+    # Pull request settings
+    open-pull-requests-limit: 5
+    # Commit message settings
+    commit-message:
+      prefix: "chore(ci)"
+      include: "scope"
+    # Security updates configuration
+    security-updates-only: false
+    # Allow list configuration
+    allow:
+      - dependency-type: "all"
+
+# Global settings for all updates
+updates-extra:
+  # Enable vulnerability alerts
+  enable-vulnerability-alerts: true
+  # Enable automated security fixes
+  enable-automated-security-fixes: true
+  # Pull request settings
+  pull-request-branch-name:
+    separator: "-"
+  # Review requirements
+  require-review: true
+  # Auto-merge configuration
+  auto-merge:
+    enabled: false
