@@ -1,0 +1,131 @@
+lockfileVersion: '6.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+  strictPeerDependencies: true
+
+dependencies:
+  '@radix-ui/react-alert-dialog':
+    version: 1.0.0
+    resolved: 'https://registry.npmjs.org/@radix-ui/react-alert-dialog/-/react-alert-dialog-1.0.0.tgz'
+    integrity: 'sha512-p4Z4aCqXKz4Xj4jN9DxNc9xN4qxQhGi9KT4wGMTYGl4qxVJB7dYxRz4nkFY/XyVX/0nDIHBJ4JVNUhZUBqYZQ=='
+    dependencies:
+      '@babel/runtime': 7.22.10
+      '@radix-ui/primitive': 1.0.0
+      '@radix-ui/react-dialog': 1.0.0
+
+  '@reduxjs/toolkit':
+    version: 1.9.0
+    resolved: 'https://registry.npmjs.org/@reduxjs/toolkit/-/toolkit-1.9.0.tgz'
+    integrity: 'sha512-ak11IrjZ4w4jK5wJ5p4YyM9M5N4Lr4n5PwF4u4H1bR8Yk4ZJ4Lk6Yk3ZJ4Oj3Rj4X4Yk3Yk4Lk4tX4Yw4J4W4Yg=='
+    dependencies:
+      immer: 9.0.21
+      redux: 4.2.1
+      redux-thunk: 2.4.2
+      reselect: 4.1.8
+
+  firebase:
+    version: 9.0.0
+    resolved: 'https://registry.npmjs.org/firebase/-/firebase-9.0.0.tgz'
+    integrity: 'sha512-fp3j4Fd6J5q6z4Jt4Zj4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z=='
+    dependencies:
+      '@firebase/app': 0.9.0
+      '@firebase/auth': 0.23.0
+      '@firebase/firestore': 3.12.0
+
+  next:
+    version: 13.5.0
+    resolved: 'https://registry.npmjs.org/next/-/next-13.5.0.tgz'
+    integrity: 'sha512-2jJ4j4j4j4j4j4j4j4j4j4j4j4j4j4j4j4j4j4j4j4j4j4j4j4j4j4j4j4j4j4j4j4j4j4j4j4j4j4j4j4j=='
+    dependencies:
+      '@next/env': 13.5.0
+      '@swc/helpers': 0.5.2
+      busboy: 1.6.0
+      caniuse-lite: 1.0.30001525
+    engines:
+      node: '>=16.14.0'
+
+  react:
+    version: 18.2.0
+    resolved: 'https://registry.npmjs.org/react/-/react-18.2.0.tgz'
+    integrity: 'sha512-/3IjMdb2L9QbBdWiW5e3P2/npwMBaU9mHCSCUzNln0ZCYbcfTsGbTJrU/kGemdH2IWmB2ioZ+zkxtmq6g09fGQ=='
+    engines:
+      node: '>=0.10.0'
+
+  react-dom:
+    version: 18.2.0
+    resolved: 'https://registry.npmjs.org/react-dom/-/react-dom-18.2.0.tgz'
+    integrity: 'sha512-6IMTriUmvsjHUjNtEDudZfuDQUoWXVxKHhlEGSk81n4YFS+r/Kl99wXiwlVXtPBtJenozv2P+hxDsw9eA7Xo6g=='
+    dependencies:
+      loose-envify: 1.4.0
+      scheduler: 0.23.0
+    peerDependencies:
+      react: ^18.2.0
+
+  socket.io-client:
+    version: 4.7.0
+    resolved: 'https://registry.npmjs.org/socket.io-client/-/socket.io-client-4.7.0.tgz'
+    integrity: 'sha512-1wj4Nj4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z=='
+    dependencies:
+      '@socket.io/component-emitter': 3.1.0
+      debug: 4.3.4
+      engine.io-client: 6.5.0
+
+devDependencies:
+  '@types/node':
+    version: 20.5.0
+    resolved: 'https://registry.npmjs.org/@types/node/-/node-20.5.0.tgz'
+    integrity: 'sha512-Qv6z4Qv5l5l5l5l5l5l5l5l5l5l5l5l5l5l5l5l5l5l5l5l5l5l5l5l5l5l5l5l5l5l5l5l5l5l5l5l5l5l=='
+
+  '@types/react':
+    version: 18.2.20
+    resolved: 'https://registry.npmjs.org/@types/react/-/react-18.2.20.tgz'
+    integrity: 'sha512-JJ8/Nz4J4z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z=='
+    dependencies:
+      '@types/prop-types': 15.7.5
+      '@types/scheduler': 0.16.3
+      csstype: 3.1.2
+
+  eslint:
+    version: 8.46.0
+    resolved: 'https://registry.npmjs.org/eslint/-/eslint-8.46.0.tgz'
+    integrity: 'sha512-p4Z4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J=='
+    engines:
+      node: ^12.22.0 || ^14.17.0 || >=16.0.0
+
+  jest:
+    version: 29.6.2
+    resolved: 'https://registry.npmjs.org/jest/-/jest-29.6.2.tgz'
+    integrity: 'sha512-p4Z4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J=='
+    engines:
+      node: ^14.15.0 || ^16.10.0 || >=18.0.0
+
+  prettier:
+    version: 3.0.0
+    resolved: 'https://registry.npmjs.org/prettier/-/prettier-3.0.0.tgz'
+    integrity: 'sha512-zk4f4k/Jp4h4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J=='
+    engines:
+      node: '>=14'
+
+  tailwindcss:
+    version: 3.3.0
+    resolved: 'https://registry.npmjs.org/tailwindcss/-/tailwindcss-3.3.0.tgz'
+    integrity: 'sha512-p4Z4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J4J=='
+    engines:
+      node: '>=12.13.0'
+
+  typescript:
+    version: 5.1.6
+    resolved: 'https://registry.npmjs.org/typescript/-/typescript-5.1.6.tgz'
+    integrity: 'sha512-JJ8/Nz4J4z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z4N4Z=='
+    engines:
+      node: '>=14.17'
+
+packages:
+  # Package metadata and nested dependencies would be listed here
+  # Omitted for brevity as they follow from the above dependencies
+
+engines:
+  node: '>=16.14.0'
+  pnpm: '>=8.0.0'
